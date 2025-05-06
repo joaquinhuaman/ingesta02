@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_ingesta
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: utec
+      MYSQL_PASSWORD: utec
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  ingesta:
+    build: .
+    container_name: ingesta02
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_USER: utec
+      DB_PASSWORD: utec
+      DB_NAME: testdb
+      DB_TABLE: employees
+      BUCKET_NAME: ingesta02  # Aquí se actualiza el nombre del bucket
+    volumes:
+      - .:/programas/ingesta
+    command: python ingesta.py
+
+volumes:
+  mysql_data:
